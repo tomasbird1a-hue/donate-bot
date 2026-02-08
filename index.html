@@ -7,138 +7,340 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg: #0f1115; --card: #181b21; --primary: #5865F2; --text: #fff; --sub: #9ca3af; --green: #22c55e;
+            --bg: #09090b;
+            --card-bg: #18181b;
+            --primary: #6366f1; /* Indigo */
+            --primary-dark: #4338ca;
+            --text: #ffffff;
+            --sub: #a1a1aa;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --glass: rgba(24, 24, 27, 0.7);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        /* Табы */
-        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; background: var(--card); padding: 4px; border-radius: 12px; }
-        .tab { padding: 10px; border: none; background: none; color: var(--sub); font-weight: 600; cursor: pointer; border-radius: 8px; transition: 0.2s; }
-        .tab.active { background: var(--primary); color: #fff; }
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
 
-        /* Контент */
-        .page { display: none; animation: fade 0.3s; }
+        /* --- Header --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .logo { font-weight: 800; font-size: 20px; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-badge { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* --- Navigation --- */
+        .nav-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; display: none; }
+        .nav-header.visible { display: flex; animation: slideRight 0.3s; }
+        .back-btn { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* --- Categories Grid --- */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; animation: fadeUp 0.4s; }
+        
+        .cat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            height: 140px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-card:active { transform: scale(0.96); }
+        .cat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--accent-gradient); opacity: 0; transition: opacity 0.2s; }
+        .cat-card:hover::before { opacity: 1; }
+
+        .cat-icon { font-size: 32px; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4)); }
+        .cat-title { font-weight: 600; font-size: 14px; }
+
+        /* --- Pages --- */
+        .page { display: none; animation: fadeUp 0.3s; }
         .page.active { display: block; }
-        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Товар */
-        .item { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-        .item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .price { background: rgba(34, 197, 94, 0.1); color: var(--green); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 14px; }
-        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .btn:active { transform: scale(0.98); }
+        /* --- Items --- */
+        .item-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-info h3 { font-size: 15px; margin-bottom: 4px; }
+        .item-info p { font-size: 12px; color: var(--sub); max-width: 200px; }
+        
+        .buy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        .buy-btn:active { opacity: 0.7; }
 
-        /* Профиль */
-        .profile { background: linear-gradient(145deg, #1e232b, #181b21); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .avatar { width: 64px; height: 64px; background: var(--primary); border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; }
-        .val { font-size: 18px; font-weight: 700; display: block; }
-        .lbl { font-size: 11px; color: var(--sub); text-transform: uppercase; }
+        /* --- Profile & Admin --- */
+        .profile-header { text-align: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .avatar { width: 70px; height: 70px; border-radius: 50%; background: var(--accent-gradient); margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        
+        .admin-dashboard { border-top: 1px dashed rgba(255,255,255,0.2); margin-top: 30px; padding-top: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: rgba(99, 102, 241, 0.1); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(99, 102, 241, 0.2); }
+        .stat-num { font-size: 20px; font-weight: 800; color: #a5b4fc; }
+        .stat-label { font-size: 11px; color: var(--sub); text-transform: uppercase; margin-top: 5px; }
 
-        /* Админка */
-        .admin-panel { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--sub); display: none; }
-        .admin-tag { background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; vertical-align: middle; }
+        /* Animations */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideRight { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Bottom Tab Bar */
+        .tab-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(9, 9, 11, 0.9); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); padding: 10px 30px; display: flex; justify-content: space-around; z-index: 100; }
+        .tab-item { background: none; border: none; color: var(--sub); font-size: 24px; cursor: pointer; transition: 0.2s; position: relative; }
+        .tab-item.active { color: var(--primary); transform: translateY(-2px); }
+        .tab-item.active::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
+
     </style>
 </head>
 <body>
 
-    <div class="tabs">
-        <button class="tab active" onclick="setTab('shop')">Магазин</button>
-        <button class="tab" onclick="setTab('profile')">Профиль</button>
+    <header>
+        <div class="logo">MagicRP</div>
+        <div class="balance-badge">
+            <span id="balance">0</span> ₽
+        </div>
+    </header>
+
+    <div class="nav-header" id="navHeader">
+        <button class="back-btn" onclick="goHome()">←</button>
+        <h2 id="categoryTitle" style="font-size: 18px; font-weight: 700;">Категория</h2>
     </div>
 
-    <div id="shop" class="page active">
-        <div class="item">
-            <div class="item-head"><b>VIP Status</b> <span class="price">150 ₽</span></div>
-            <div style="font-size: 13px; color: var(--sub);">x2 Опыт, Доступ к VIP чату, Префикс [VIP]</div>
-            <button class="btn" onclick="buy('vip', 150, 'VIP Status')">Купить</button>
+    <div id="home" class="page active">
+        <div class="grid">
+            <div class="cat-card" onclick="openCategory('ranks', '⭐ Привилегии')">
+                <div class="cat-icon">👑</div>
+                <div class="cat-title">Ранги</div>
+            </div>
+            <div class="cat-card" onclick="openCategory('money', '💰 Валюта')">
+                <div class="cat-icon">💵</div>
+                <div class="cat-title">Деньги</div>
+            </div>
+            <div class="cat-card" onclick="openCategory('unban', '🚫 Разбан')">
+                <div class="cat-icon">🔓</div>
+                <div class="cat-title">Разбан</div>
+            </div>
+            <div class="cat-card" onclick="openCategory('special', '🔥 Особое')">
+                <div class="cat-icon">🎒</div>
+                <div class="cat-title">Предметы</div>
+            </div>
         </div>
-        
-        <div class="item">
-            <div class="item-head"><b>Admin Level 1</b> <span class="price">500 ₽</span></div>
-            <div style="font-size: 13px; color: var(--sub);">Базовые права, Кик, Мут, Джаил</div>
-            <button class="btn" onclick="buy('admin1', 500, 'Admin Level 1')">Купить</button>
+    </div>
+
+    <div id="ranks" class="page">
+        <div class="item-card">
+            <div class="item-info">
+                <h3>VIP Status</h3>
+                <p>x2 Опыт, Префикс, Скины</p>
+            </div>
+            <button class="buy-btn" onclick="buy('vip', 150, 'VIP Status')">150 ₽</button>
         </div>
 
-        <div class="item">
-            <div class="item-head"><b>Разбан</b> <span class="price">200 ₽</span></div>
-            <div style="font-size: 13px; color: var(--sub);">Полное снятие всех блокировок</div>
-            <button class="btn" onclick="buy('unban', 200, 'Разбан')">Купить</button>
+        <div class="item-card">
+            <div class="item-info">
+                <h3>Admin Level 1</h3>
+                <p>Базовые права, Кик, Мут</p>
+            </div>
+            <button class="buy-btn" onclick="buy('admin1', 500, 'Admin Lvl 1')">500 ₽</button>
+        </div>
+        
+        <div class="item-card">
+            <div class="item-info">
+                <h3>Admin Level 3</h3>
+                <p>Бан, полный контроль</p>
+            </div>
+            <button class="buy-btn" onclick="buy('admin3', 1500, 'Admin Lvl 3')">1500 ₽</button>
+        </div>
+    </div>
+
+    <div id="money" class="page">
+        <div class="item-card">
+            <div class="item-info">
+                <h3>1.000.000 $</h3>
+                <p>Игровая валюта</p>
+            </div>
+            <button class="buy-btn" onclick="buy('mon_1m', 100, '1KK Вирт')">100 ₽</button>
+        </div>
+        <div class="item-card">
+            <div class="item-info">
+                <h3>10.000.000 $</h3>
+                <p>Пакет магната</p>
+            </div>
+            <button class="buy-btn" onclick="buy('mon_10m', 800, '10KK Вирт')">800 ₽</button>
+        </div>
+    </div>
+
+    <div id="unban" class="page">
+        <div class="item-card">
+            <div class="item-info">
+                <h3>Разбан аккаунта</h3>
+                <p>Полное снятие блокировки</p>
+            </div>
+            <button class="buy-btn" onclick="buy('unban', 300, 'Разбан')">300 ₽</button>
+        </div>
+    </div>
+
+    <div id="special" class="page">
+        <div class="item-card">
+            <div class="item-info">
+                <h3>Личный автомобиль</h3>
+                <p>Любое авто на выбор</p>
+            </div>
+            <button class="buy-btn" onclick="buy('car', 1000, 'Авто')">1000 ₽</button>
         </div>
     </div>
 
     <div id="profile" class="page">
-        <div class="profile-card">
-            <div class="avatar" id="ava">?</div>
-            <h3 id="username">Загрузка...</h3>
-            <div style="font-size: 12px; color: var(--sub); margin-bottom: 15px;" id="userid">ID: 000000</div>
+        <div class="profile-header">
+            <div class="avatar" id="avatar">?</div>
+            <h2 id="username">Guest</h2>
+            <p style="color: var(--sub); font-size: 13px;" id="userid">ID: 0000</p>
+        </div>
+
+        <div class="item-card" style="background: rgba(255,255,255,0.03);">
+            <div class="item-info">
+                <h3>Ваш статус</h3>
+            </div>
+            <button class="buy-btn" style="background: rgba(255,255,255,0.1); cursor: default;" id="user-role">Игрок</button>
+        </div>
+
+        <div id="admin-panel" class="admin-dashboard" style="display: none;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                <h3>⚡ Control Panel</h3>
+                <span style="background: #f59e0b; color: black; font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px;">ADMIN</span>
+            </div>
             
-            <div class="stats">
+            <div class="stat-grid">
                 <div class="stat-box">
-                    <span class="val" id="balance">0 ₽</span>
-                    <span class="lbl">Баланс</span>
+                    <div class="stat-num" id="stat-users">0</div>
+                    <div class="stat-label">Игроков</div>
                 </div>
                 <div class="stat-box">
-                    <span class="val" id="role">Игрок</span>
-                    <span class="lbl">Статус</span>
+                    <div class="stat-num" id="stat-sales">14</div>
+                    <div class="stat-label">Продаж</div>
                 </div>
             </div>
 
-            <div id="admin-area" class="admin-panel">
-                <h4 style="margin-bottom: 10px;">Панель <span class="admin-tag">ADMIN</span></h4>
-                <div style="font-size: 13px; color: var(--sub); margin-bottom: 10px;">
-                    Статистика сервера: <br>
-                    Всего юзеров: <span id="total-users">0</span>
+            <div class="item-card" style="border-color: #f59e0b;">
+                <div class="item-info">
+                    <h3 style="color: #f59e0b;">Добавить товар</h3>
+                    <p>Инструкция для админа</p>
                 </div>
-                <button class="btn" style="background: #333;" onclick="tg.close()">Закрыть панель</button>
+                <button class="buy-btn" style="background: #f59e0b; color: black;" onclick="showAdminHint()">Как?</button>
             </div>
         </div>
+    </div>
+
+    <div class="tab-bar">
+        <button class="tab-item active" onclick="switchTab('home', this)">🏠</button>
+        <button class="tab-item" onclick="switchTab('profile', this)">👤</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Получаем параметры из ссылки (которую сгенерировал бот)
+        // Парсинг данных из URL (от бота)
         const params = new URLSearchParams(window.location.search);
         const userBalance = parseInt(params.get('bal') || '0');
         const isAdmin = params.get('admin') === '1';
         const totalUsers = params.get('users') || '1';
-        
-        // Данные из Телеграма
-        const user = tg.initDataUnsafe?.user || { first_name: 'GUEST', id: 0 };
 
         // Инициализация
+        const user = tg.initDataUnsafe?.user || { first_name: 'User', id: 0 };
+        document.getElementById('balance').innerText = userBalance;
         document.getElementById('username').innerText = user.first_name;
-        document.getElementById('ava').innerText = user.first_name[0];
+        document.getElementById('avatar').innerText = user.first_name[0];
         document.getElementById('userid').innerText = `ID: ${user.id}`;
-        document.getElementById('balance').innerText = `${userBalance} ₽`;
-        
+
+        // Настройка Админки
         if (isAdmin) {
-            document.getElementById('role').innerText = "Основатель";
-            document.getElementById('role').style.color = "#f59e0b";
-            document.getElementById('admin-area').style.display = "block";
-            document.getElementById('total-users').innerText = totalUsers;
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('user-role').innerText = 'ADMIN';
+            document.getElementById('user-role').style.color = '#f59e0b';
+            document.getElementById('stat-users').innerText = totalUsers;
         }
 
-        function setTab(name) {
+        // --- ЛОГИКА НАВИГАЦИИ ---
+
+        // Переключение нижних вкладок (Главная / Профиль)
+        function switchTab(tabId, btn) {
+            // Скрываем все страницы
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(name).classList.add('active');
-            event.target.classList.add('active');
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            
+            // Если нажали "Главная", скрываем заголовок категории и возвращаем сетку
+            if (tabId === 'home') {
+                document.getElementById('navHeader').classList.remove('visible');
+                document.getElementById('home').classList.add('active');
+            } else {
+                document.getElementById(tabId).classList.add('active');
+                document.getElementById('navHeader').classList.remove('visible'); // В профиле заголовок не нужен
+            }
+            
+            btn.classList.add('active');
         }
 
+        // Открыть категорию
+        function openCategory(catId, title) {
+            document.getElementById('home').classList.remove('active'); // Скрыть сетку
+            document.getElementById(catId).classList.add('active'); // Показать список
+            
+            // Показать шапку с кнопкой назад
+            const nav = document.getElementById('navHeader');
+            document.getElementById('categoryTitle').innerText = title;
+            nav.classList.add('visible');
+        }
+
+        // Вернуться к категориям
+        function goHome() {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.getElementById('home').classList.add('active');
+            document.getElementById('navHeader').classList.remove('visible');
+        }
+
+        // --- ЛОГИКА ПОКУПКИ ---
         function buy(code, price, name) {
             if (userBalance < price) {
-                tg.showAlert(`❌ Недостаточно средств! Нужно: ${price} ₽`);
+                tg.showAlert(`❌ Не хватает средств! Нужно: ${price} ₽`);
+                tg.HapticFeedback.notificationOccurred('error');
                 return;
             }
 
             tg.showConfirm(`Купить "${name}" за ${price} ₽?`, (ok) => {
                 if (ok) {
-                    // Отправляем данные боту. Бот сам спишет деньги.
                     const data = JSON.stringify({
                         action: 'buy',
                         item_code: code,
@@ -146,8 +348,13 @@
                         price: price
                     });
                     tg.sendData(data);
+                    tg.HapticFeedback.notificationOccurred('success');
                 }
             });
+        }
+
+        function showAdminHint() {
+            tg.showAlert('ℹ️ Так как это GitHub Pages, добавление товаров делается через код. Открой index.html, найди нужную категорию и скопируй блок <div class="item-card">...');
         }
     </script>
 </body>
