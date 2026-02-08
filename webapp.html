@@ -3,404 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MagicRP | Store</title>
+    <title>MagicRP Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0f1115;
-            --card-bg: #181b21;
-            --primary: #5865F2; /* Строгий синий/фиолетовый как в Discord */
-            --accent: #4752C4;
-            --text-main: #FFFFFF;
-            --text-secondary: #9ca3af;
-            --success: #22c55e;
-            --danger: #ef4444;
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #0f1115; --card: #181b21; --primary: #5865F2; --text: #fff; --sub: #9ca3af; --green: #22c55e;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            padding: 16px;
-            padding-bottom: 40px;
-            max-width: 600px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /* Header */
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        h1 {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Navigation Tabs */
-        .tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: var(--card-bg);
-            padding: 4px;
-            border-radius: 12px;
-        }
-
-        .tab-btn {
-            padding: 10px;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
-        }
-
-        /* Content Sections */
-        .section {
-            display: none;
-            animation: fadeEffect 0.3s ease;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        @keyframes fadeEffect {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Rank Cards */
-        .rank-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .rank-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .rank-title {
-            font-size: 17px;
-            font-weight: 600;
-        }
-
-        .rank-price {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--success);
-            background: rgba(34, 197, 94, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-        }
-
-        .rank-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; }
         
-        .btn:active {
-            transform: scale(0.98);
-        }
+        /* Табы */
+        .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; background: var(--card); padding: 4px; border-radius: 12px; }
+        .tab { padding: 10px; border: none; background: none; color: var(--sub); font-weight: 600; cursor: pointer; border-radius: 8px; transition: 0.2s; }
+        .tab.active { background: var(--primary); color: #fff; }
 
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
+        /* Контент */
+        .page { display: none; animation: fade 0.3s; }
+        .page.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
+        /* Товар */
+        .item { background: var(--card); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+        .item-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .price { background: rgba(34, 197, 94, 0.1); color: var(--green); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 14px; }
+        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn:active { transform: scale(0.98); }
 
-        /* Profile Styles */
-        .profile-card {
-            background: linear-gradient(145deg, #1e232b, #181b21);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid var(--border);
-            margin-bottom: 24px;
-        }
+        /* Профиль */
+        .profile { background: linear-gradient(145deg, #1e232b, #181b21); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .avatar { width: 64px; height: 64px; background: var(--primary); border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .stat-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; }
+        .val { font-size: 18px; font-weight: 700; display: block; }
+        .lbl { font-size: 11px; color: var(--sub); text-transform: uppercase; }
 
-        .avatar-placeholder {
-            width: 64px;
-            height: 64px;
-            background: var(--primary);
-            border-radius: 50%;
-            margin: 0 auto 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .user-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .user-id {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-family: monospace;
-            opacity: 0.7;
-        }
-
-        .stats-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .stat-box {
-            background: rgba(255,255,255,0.03);
-            padding: 12px;
-            border-radius: 10px;
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: 700;
-            display: block;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-            display: block;
-        }
-
-        /* History */
-        .history-title {
-            font-size: 14px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            padding-left: 4px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 16px;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-        }
-        .history-item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
-        .history-item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-bottom: none; }
-
-        .history-name { font-size: 14px; font-weight: 500; }
-        .history-date { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-        .history-price { font-weight: 600; color: var(--text-main); }
-
-        /* Admin Panel */
-        .admin-panel {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px dashed var(--border);
-        }
-        
-        .admin-tag {
-            background: #f59e0b;
-            color: #000;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-left: 8px;
-        }
-
-        .admin-controls {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .modal-overlay.open {
-            display: flex;
-        }
-
-        .modal-box {
-            background: #1e232b;
-            width: 100%;
-            max-width: 400px;
-            border-radius: 16px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .form-group { margin-bottom: 16px; }
-        .form-label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-secondary); }
-        .form-input { 
-            width: 100%; 
-            background: #0f1115; 
-            border: 1px solid var(--border); 
-            padding: 12px; 
-            border-radius: 8px; 
-            color: white; 
-            font-size: 14px; 
-        }
-        .form-input:focus { outline: none; border-color: var(--primary); }
-
+        /* Админка */
+        .admin-panel { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--sub); display: none; }
+        .admin-tag { background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; vertical-align: middle; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <div>
-                <h1>MagicRP Store</h1>
-                <div class="subtitle">Официальный магазин сервера</div>
-            </div>
-        </header>
+    <div class="tabs">
+        <button class="tab active" onclick="setTab('shop')">Магазин</button>
+        <button class="tab" onclick="setTab('profile')">Профиль</button>
+    </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="setTab('ranks')">Товары</button>
-            <button class="tab-btn" onclick="setTab('profile')">Профиль</button>
+    <div id="shop" class="page active">
+        <div class="item">
+            <div class="item-head"><b>VIP Status</b> <span class="price">150 ₽</span></div>
+            <div style="font-size: 13px; color: var(--sub);">x2 Опыт, Доступ к VIP чату, Префикс [VIP]</div>
+            <button class="btn" onclick="buy('vip', 150, 'VIP Status')">Купить</button>
+        </div>
+        
+        <div class="item">
+            <div class="item-head"><b>Admin Level 1</b> <span class="price">500 ₽</span></div>
+            <div style="font-size: 13px; color: var(--sub);">Базовые права, Кик, Мут, Джаил</div>
+            <button class="btn" onclick="buy('admin1', 500, 'Admin Level 1')">Купить</button>
         </div>
 
-        <div id="ranks" class="section active">
-            <div id="ranks-container">
-                </div>
-        </div>
-
-        <div id="profile" class="section">
-            <div class="profile-card">
-                <div class="avatar-placeholder" id="user-avatar">?</div>
-                <div class="user-name" id="profile-name">Загрузка...</div>
-                <div class="user-id" id="profile-id">ID: ...</div>
-
-                <div class="stats-row">
-                    <div class="stat-box">
-                        <span class="stat-value" id="profile-balance">0 ₽</span>
-                        <span class="stat-label">Баланс</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-value" id="profile-purchases">0</span>
-                        <span class="stat-label">Покупок</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="history-title">История операций</div>
-            <div id="history-list">
-                </div>
-
-            <div id="admin-panel-block" class="admin-panel" style="display: none;">
-                <div class="history-title" style="color: #f59e0b;">
-                    Управление <span class="admin-tag">ADMIN</span>
-                </div>
-                <div class="admin-controls">
-                    <button class="btn btn-primary" onclick="openModal('addRankModal')">+ Добавить товар</button>
-                    <button class="btn btn-danger" onclick="resetData()">Сброс данных (Debug)</button>
-                </div>
-            </div>
+        <div class="item">
+            <div class="item-head"><b>Разбан</b> <span class="price">200 ₽</span></div>
+            <div style="font-size: 13px; color: var(--sub);">Полное снятие всех блокировок</div>
+            <button class="btn" onclick="buy('unban', 200, 'Разбан')">Купить</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="addRankModal">
-        <div class="modal-box">
-            <h3 style="margin-bottom: 20px;">Новый товар</h3>
-            <form onsubmit="handleAddRank(event)">
-                <div class="form-group">
-                    <label class="form-label">Название</label>
-                    <input type="text" class="form-input" id="newRankName" required>
+    <div id="profile" class="page">
+        <div class="profile-card">
+            <div class="avatar" id="ava">?</div>
+            <h3 id="username">Загрузка...</h3>
+            <div style="font-size: 12px; color: var(--sub); margin-bottom: 15px;" id="userid">ID: 000000</div>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="val" id="balance">0 ₽</span>
+                    <span class="lbl">Баланс</span>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Цена (₽)</label>
-                    <input type="number" class="form-input" id="newRankPrice" required>
+                <div class="stat-box">
+                    <span class="val" id="role">Игрок</span>
+                    <span class="lbl">Статус</span>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Описание</label>
-                    <input type="text" class="form-input" id="newRankDesc" required>
+            </div>
+
+            <div id="admin-area" class="admin-panel">
+                <h4 style="margin-bottom: 10px;">Панель <span class="admin-tag">ADMIN</span></h4>
+                <div style="font-size: 13px; color: var(--sub); margin-bottom: 10px;">
+                    Статистика сервера: <br>
+                    Всего юзеров: <span id="total-users">0</span>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button type="button" class="btn" style="background: var(--card-bg)" onclick="closeModal('addRankModal')">Отмена</button>
-                    <button type="submit" class="btn btn-primary">Создать</button>
-                </div>
-            </form>
+                <button class="btn" style="background: #333;" onclick="tg.close()">Закрыть панель</button>
+            </div>
         </div>
     </div>
 
@@ -408,180 +101,54 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ==========================================
-        // НАСТРОЙКИ (РЕДАКТИРОВАТЬ ЗДЕСЬ)
-        // ==========================================
+        // Получаем параметры из ссылки (которую сгенерировал бот)
+        const params = new URLSearchParams(window.location.search);
+        const userBalance = parseInt(params.get('bal') || '0');
+        const isAdmin = params.get('admin') === '1';
+        const totalUsers = params.get('users') || '1';
         
-        // Вставь сюда свой ID цифрами. Узнать можно в боте @userinfobot
-        const ADMIN_IDS = [1831662688]; 
+        // Данные из Телеграма
+        const user = tg.initDataUnsafe?.user || { first_name: 'GUEST', id: 0 };
 
-        // ==========================================
-
-        const currentUser = tg.initDataUnsafe?.user || {
-            id: 999999,
-            first_name: 'Test',
-            username: 'User'
-        }; // Фолбэк для теста в браузере
-
-        // Инициализация базы данных
-        let db = {
-            ranks: JSON.parse(localStorage.getItem('mrp_ranks')) || [
-                { id: 1, name: "Premium VIP", price: 490, desc: "Доступ к VIP чату и x2 опыт" },
-                { id: 2, name: "Admin Level 1", price: 1500, desc: "Базовые права администратора" },
-                { id: 3, name: "Owner", price: 5000, desc: "Полный доступ к серверу" }
-            ],
-            users: JSON.parse(localStorage.getItem('mrp_users')) || {}
-        };
-
-        if (!db.users[currentUser.id]) {
-            db.users[currentUser.id] = {
-                balance: 0,
-                history: []
-            };
-            saveDb();
+        // Инициализация
+        document.getElementById('username').innerText = user.first_name;
+        document.getElementById('ava').innerText = user.first_name[0];
+        document.getElementById('userid').innerText = `ID: ${user.id}`;
+        document.getElementById('balance').innerText = `${userBalance} ₽`;
+        
+        if (isAdmin) {
+            document.getElementById('role').innerText = "Основатель";
+            document.getElementById('role').style.color = "#f59e0b";
+            document.getElementById('admin-area').style.display = "block";
+            document.getElementById('total-users').innerText = totalUsers;
         }
 
-        // Проверка админа
-        const isAdmin = ADMIN_IDS.includes(currentUser.id) || currentUser.id === 999999; // 999999 для теста
-
-        // --- UI FUNCTIONS ---
-
-        function setTab(tabName) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            
-            // Находим кнопку по тексту или индексу, упростим логику:
-            const buttons = document.querySelectorAll('.tab-btn');
-            if(tabName === 'ranks') buttons[0].classList.add('active');
-            else buttons[1].classList.add('active');
-
-            document.getElementById(tabName).classList.add('active');
-
-            if (tabName === 'profile') renderProfile();
+        function setTab(name) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(name).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        function renderRanks() {
-            const container = document.getElementById('ranks-container');
-            container.innerHTML = '';
-
-            db.ranks.forEach(rank => {
-                const card = document.createElement('div');
-                card.className = 'rank-card';
-                card.innerHTML = `
-                    <div class="rank-header">
-                        <div class="rank-title">${rank.name}</div>
-                        <div class="rank-price">${rank.price} ₽</div>
-                    </div>
-                    <div class="rank-desc">${rank.desc}</div>
-                    ${isAdmin ? `<button class="btn btn-danger" style="margin-top:10px; padding: 8px;" onclick="deleteRank(${rank.id})">Удалить (Админ)</button>` : ''}
-                    <button class="btn btn-primary" style="margin-top: 10px;" onclick="buyItem(${rank.id})">Приобрести</button>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function renderProfile() {
-            const user = db.users[currentUser.id];
-            
-            document.getElementById('profile-name').textContent = currentUser.username || currentUser.first_name;
-            document.getElementById('user-avatar').textContent = (currentUser.first_name || 'U')[0];
-            document.getElementById('profile-id').textContent = `ID: ${currentUser.id}`;
-            document.getElementById('profile-balance').textContent = `${user.balance} ₽`;
-            document.getElementById('profile-purchases').textContent = user.history.length;
-
-            // История
-            const historyList = document.getElementById('history-list');
-            historyList.innerHTML = '';
-            
-            if (user.history.length === 0) {
-                historyList.innerHTML = '<div style="padding:20px; text-align:center; color:var(--text-secondary); font-size:13px;">Покупок пока нет</div>';
-            } else {
-                [...user.history].reverse().forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'history-item';
-                    div.innerHTML = `
-                        <div>
-                            <div class="history-name">${item.name}</div>
-                            <div class="history-date">${new Date(item.date).toLocaleDateString()}</div>
-                        </div>
-                        <div class="history-price">-${item.price} ₽</div>
-                    `;
-                    historyList.appendChild(div);
-                });
+        function buy(code, price, name) {
+            if (userBalance < price) {
+                tg.showAlert(`❌ Недостаточно средств! Нужно: ${price} ₽`);
+                return;
             }
 
-            // Админка
-            if (isAdmin) {
-                document.getElementById('admin-panel-block').style.display = 'block';
-            }
-        }
-
-        // --- LOGIC ---
-
-        function buyItem(rankId) {
-            const rank = db.ranks.find(r => r.id === rankId);
-            if(!rank) return;
-
-            tg.showConfirm(`Купить "${rank.name}" за ${rank.price} ₽?`, (ok) => {
-                if(ok) {
-                    db.users[currentUser.id].history.push({
-                        name: rank.name,
-                        price: rank.price,
-                        date: new Date().toISOString()
+            tg.showConfirm(`Купить "${name}" за ${price} ₽?`, (ok) => {
+                if (ok) {
+                    // Отправляем данные боту. Бот сам спишет деньги.
+                    const data = JSON.stringify({
+                        action: 'buy',
+                        item_code: code,
+                        item_name: name,
+                        price: price
                     });
-                    saveDb();
-                    tg.showAlert('✅ Успешно! Заявка отправлена.');
+                    tg.sendData(data);
                 }
             });
         }
-
-        function handleAddRank(e) {
-            e.preventDefault();
-            const name = document.getElementById('newRankName').value;
-            const price = document.getElementById('newRankPrice').value;
-            const desc = document.getElementById('newRankDesc').value;
-
-            db.ranks.push({
-                id: Date.now(),
-                name,
-                price: parseInt(price),
-                desc
-            });
-            saveDb();
-            closeModal('addRankModal');
-            renderRanks();
-            tg.showAlert('Товар добавлен');
-            e.target.reset();
-        }
-
-        function deleteRank(id) {
-            tg.showConfirm('Удалить этот товар?', (ok) => {
-                if(ok) {
-                    db.ranks = db.ranks.filter(r => r.id !== id);
-                    saveDb();
-                    renderRanks();
-                }
-            });
-        }
-
-        function saveDb() {
-            localStorage.setItem('mrp_ranks', JSON.stringify(db.ranks));
-            localStorage.setItem('mrp_users', JSON.stringify(db.users));
-        }
-
-        function resetData() {
-            if(confirm('Сбросить все данные магазина?')) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        // --- MODAL ---
-        function openModal(id) { document.getElementById(id).classList.add('open'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-        // Init
-        renderRanks();
     </script>
 </body>
 </html>
