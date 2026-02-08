@@ -15,7 +15,6 @@
             --sub: #9ca3af;
             --green: #22c55e;
             --gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            --glass: rgba(24, 27, 33, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -29,17 +28,17 @@
             min-height: 100vh;
         }
 
-        /* HEADER */
+        /* ШАПКА */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .logo { font-size: 20px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .balance { background: rgba(255,255,255,0.08); padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px; border: 1px solid rgba(255,255,255,0.05); }
 
-        /* НАВИГАЦИЯ ВНУТРИ */
+        /* НАВИГАЦИЯ */
         .nav-header { display: none; align-items: center; gap: 12px; margin-bottom: 20px; animation: slideIn 0.3s; }
         .nav-header.active { display: flex; }
         .back-btn { width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,0.05); border: none; color: white; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* ГЛАВНАЯ - СЕТКА (КРАСИВАЯ) */
+        /* ГЛАВНАЯ - СЕТКА */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; animation: fadeUp 0.4s; }
         
         .cat-card {
@@ -48,71 +47,36 @@
             border-radius: 18px;
             padding: 20px;
             height: 130px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+            position: relative; overflow: hidden; transition: transform 0.2s;
         }
         .cat-card:active { transform: scale(0.96); }
-        .cat-card::before { content: ''; position: absolute; inset: 0; background: var(--gradient); opacity: 0; transition: 0.3s; z-index: 0; }
-        .cat-card:active::before { opacity: 0.1; }
-        
         .cat-icon { font-size: 36px; z-index: 1; filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.3)); }
         .cat-title { font-size: 14px; font-weight: 600; z-index: 1; }
 
-        /* СПИСКИ ТОВАРОВ */
+        /* СПИСКИ */
         .page { display: none; animation: fadeUp 0.3s; }
         .page.active { display: block; }
 
         .item-card {
             background: var(--card-bg);
             border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 16px; padding: 16px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
         }
         .item-info h3 { font-size: 15px; margin-bottom: 4px; }
         .item-info p { font-size: 12px; color: var(--sub); }
         
         .buy-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
+            background: var(--primary); color: white; border: none; padding: 10px 16px;
+            border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
         .buy-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* ПРОФИЛЬ И ЗАКАЗЫ */
-        .profile-card {
-            background: linear-gradient(160deg, #1e232b 0%, #111 100%);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .avatar { width: 70px; height: 70px; background: var(--gradient); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.25); }
-        
-        /* СТАТУСЫ ЗАКАЗОВ */
-        .status-badge { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
-        .st-wait { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .st-done { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
-
         /* АДМИНКА */
         .admin-panel { border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 20px; margin-top: 20px; display: none; }
-        .admin-input { width: 100%; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; outline: none; }
+        .admin-input { width: 100%; background: #000; border: 1px solid #333; color: white; padding: 12px; border-radius: 10px; margin-bottom: 10px; outline: none; box-sizing: border-box;}
         .admin-btn { width: 100%; padding: 12px; background: var(--green); color: black; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }
 
         /* НИЖНЕЕ МЕНЮ */
@@ -120,14 +84,11 @@
             position: fixed; bottom: 16px; left: 16px; right: 16px;
             background: rgba(20, 20, 25, 0.9); backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 20px;
-            padding: 12px;
-            display: flex; justify-content: space-around;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 100;
+            padding: 12px; display: flex; justify-content: space-around;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 100;
         }
         .tab-btn { background: none; border: none; color: var(--sub); font-size: 24px; transition: 0.2s; position: relative; }
         .tab-btn.active { color: white; transform: translateY(-3px); }
-        .tab-btn.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
@@ -137,9 +98,7 @@
 
     <header>
         <div class="logo">MagicRP</div>
-        <div class="balance">
-            <span id="balance">0</span> ₽
-        </div>
+        <div class="balance"><span id="balance">0</span> ₽</div>
     </header>
 
     <div class="nav-header" id="navHeader">
@@ -149,92 +108,48 @@
 
     <div id="home" class="page active">
         <div class="grid">
-            <div class="cat-card" onclick="openCat('ranks', '⭐ Привилегии')">
-                <div class="cat-icon">👑</div>
-                <div class="cat-title">Ранги</div>
-            </div>
-            <div class="cat-card" onclick="openCat('money', '💰 Валюта')">
-                <div class="cat-icon">💵</div>
-                <div class="cat-title">Деньги</div>
-            </div>
-            <div class="cat-card" onclick="openCat('unban', '🔓 Разбан')">
-                <div class="cat-icon">🚫</div>
-                <div class="cat-title">Разбан</div>
-            </div>
-            <div class="cat-card" onclick="openCat('cases', '📦 Кейсы')">
-                <div class="cat-icon">🎲</div>
-                <div class="cat-title">Кейсы</div>
-            </div>
+            <div class="cat-card" onclick="openCat('ranks', '⭐ Привилегии')"><div class="cat-icon">👑</div><div class="cat-title">Ранги</div></div>
+            <div class="cat-card" onclick="openCat('money', '💰 Валюта')"><div class="cat-icon">💵</div><div class="cat-title">Деньги</div></div>
+            <div class="cat-card" onclick="openCat('unban', '🔓 Разбан')"><div class="cat-icon">🚫</div><div class="cat-title">Разбан</div></div>
+            <div class="cat-card" onclick="openCat('cases', '📦 Кейсы')"><div class="cat-icon">🎲</div><div class="cat-title">Кейсы</div></div>
         </div>
     </div>
 
     <div id="ranks" class="page">
-        <div class="item-card">
-            <div class="item-info"><h3>VIP Status</h3><p>x2 Опыт, Префикс</p></div>
-            <button class="buy-btn" onclick="buy('vip', 150, 'VIP Status')">150 ₽</button>
-        </div>
-        <div class="item-card">
-            <div class="item-info"><h3>Admin Lvl 1</h3><p>Базовые права</p></div>
-            <button class="buy-btn" onclick="buy('adm1', 500, 'Admin Lvl 1')">500 ₽</button>
-        </div>
+        <div class="item-card"><div class="item-info"><h3>VIP Status</h3><p>x2 Опыт, Префикс</p></div><button class="buy-btn" onclick="buy('vip', 150)">150 ₽</button></div>
+        <div class="item-card"><div class="item-info"><h3>Admin Lvl 1</h3><p>Базовые права</p></div><button class="buy-btn" onclick="buy('adm1', 500)">500 ₽</button></div>
     </div>
 
     <div id="money" class="page">
-        <div class="item-card">
-            <div class="item-info"><h3>1.000.000 $</h3><p>Валюта сервера</p></div>
-            <button class="buy-btn" onclick="buy('m1', 100, '1KK Вирт')">100 ₽</button>
-        </div>
-        <div class="item-card">
-            <div class="item-info"><h3>10.000.000 $</h3><p>Пакет богача</p></div>
-            <button class="buy-btn" onclick="buy('m10', 800, '10KK Вирт')">800 ₽</button>
-        </div>
+        <div class="item-card"><div class="item-info"><h3>1.000.000 $</h3><p>Валюта сервера</p></div><button class="buy-btn" onclick="buy('m1', 100)">100 ₽</button></div>
+        <div class="item-card"><div class="item-info"><h3>10.000.000 $</h3><p>Пакет богача</p></div><button class="buy-btn" onclick="buy('m10', 800)">800 ₽</button></div>
     </div>
 
     <div id="unban" class="page">
-        <div class="item-card">
-            <div class="item-info"><h3>Разбан</h3><p>Снятие блокировки</p></div>
-            <button class="buy-btn" onclick="buy('unban', 300, 'Разбан')">300 ₽</button>
-        </div>
+        <div class="item-card"><div class="item-info"><h3>Разбан</h3><p>Снятие блокировки</p></div><button class="buy-btn" onclick="buy('unban', 300)">300 ₽</button></div>
     </div>
 
     <div id="cases" class="page">
-        <div class="item-card">
-            <div class="item-info"><h3>Gold Case</h3><p>Случайный донат</p></div>
-            <button class="buy-btn" onclick="buy('case_g', 200, 'Gold Case')">200 ₽</button>
-        </div>
-    </div>
-
-    <div id="orders" class="page">
-        <h3 style="margin-bottom: 15px;">Мои покупки</h3>
-        <div id="orders-list"></div>
-        <button class="buy-btn" style="width: 100%; margin-top: 20px; background: #333;" onclick="contactSupport()">💬 Написать менеджеру</button>
+        <div class="item-card"><div class="item-info"><h3>Gold Case</h3><p>Случайный донат</p></div><button class="buy-btn" onclick="buy('case_g', 200)">200 ₽</button></div>
     </div>
 
     <div id="profile" class="page">
-        <div class="profile-card">
-            <div class="avatar" id="avatar">?</div>
-            <h2 id="username">Guest</h2>
-            <p style="color: var(--sub); font-size: 13px;" id="userid">ID: 0000</p>
-        </div>
+        <h3>Мои покупки</h3>
+        <div id="orders-list" style="margin-top: 15px;"></div>
 
         <div class="admin-panel" id="admin-panel">
             <h4 style="margin-bottom: 10px; color: var(--green);">⚡ Админ панель</h4>
+            <input type="number" id="adm-id" class="admin-input" placeholder="ID игрока">
+            <input type="number" id="adm-sum" class="admin-input" placeholder="Сумма (₽)">
+            <button class="admin-btn" onclick="adminGiveMoney()">Пополнить</button>
             
-            <div style="margin-bottom: 20px;">
-                <p style="font-size: 12px; margin-bottom: 5px; color: var(--sub);">Выдача денег:</p>
-                <input type="number" id="adm-id" class="admin-input" placeholder="ID игрока">
-                <input type="number" id="adm-sum" class="admin-input" placeholder="Сумма (₽)">
-                <button class="admin-btn" onclick="adminGiveMoney()">Пополнить</button>
-            </div>
-
-            <p style="font-size: 12px; margin-bottom: 5px; color: var(--sub);">Активные заказы:</p>
+            <p style="margin-top:20px; font-size:12px; color:gray">Ожидают выдачи:</p>
             <div id="admin-orders"></div>
         </div>
     </div>
 
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('home', this)">🏠</button>
-        <button class="tab-btn" onclick="switchTab('orders', this)">🛍️</button>
         <button class="tab-btn" onclick="switchTab('profile', this)">👤</button>
     </div>
 
@@ -242,66 +157,44 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Данные из URL
+        // Получаем данные из URL (которые передал Python)
         const params = new URLSearchParams(window.location.search);
         let data = { bal: 0, admin: false, orders: [], admin_orders: [] };
-        
         try {
             const raw = params.get('data');
             if(raw) data = JSON.parse(decodeURIComponent(raw));
         } catch(e) { console.error(e); }
 
-        // Инициализация
-        const user = tg.initDataUnsafe?.user || { first_name: 'User', id: 0 };
         document.getElementById('balance').innerText = data.bal;
-        document.getElementById('username').innerText = user.first_name;
-        document.getElementById('userid').innerText = `ID: ${user.id}`;
-        document.getElementById('avatar').innerText = user.first_name[0];
 
-        // Рендер заказов пользователя
+        // Рендер заказов
         const ordList = document.getElementById('orders-list');
-        if(data.orders.length === 0) ordList.innerHTML = '<div style="text-align:center; color:gray">Пусто</div>';
+        if(data.orders.length === 0) ordList.innerHTML = '<div style="text-align:center; color:gray">История пуста</div>';
         else {
             data.orders.forEach(o => {
-                const badge = o.status === 'wait' ? '<span class="status-badge st-wait">Ожидает</span>' : '<span class="status-badge st-done">Выдано</span>';
-                ordList.innerHTML += `
-                    <div class="item-card" style="padding: 12px;">
-                        <div>
-                            <div style="font-weight:600; font-size:14px;">${o.item}</div>
-                            <div style="font-size:12px; color:gray;">${o.price} ₽</div>
-                        </div>
-                        ${badge}
+                const icon = o.status === 'wait' ? '⏳' : '✅';
+                ordList.innerHTML += `<div class="item-card" style="padding:12px;"><div><b>${o.item}</b></div><div>${icon}</div></div>`;
+            });
+        }
+
+        // Админка
+        if(data.admin) {
+            document.getElementById('admin-panel').style.display = 'block';
+            const admList = document.getElementById('admin-orders');
+            data.admin_orders.forEach(o => {
+                admList.innerHTML += `
+                    <div class="item-card" style="background:#000;">
+                        <div><b>${o.item}</b><br><small style="color:gray">${o.user} (${o.uid})</small></div>
+                        <button class="buy-btn" style="background:var(--green); color:black; padding:6px 12px;" onclick="adminDone(${o.id}, ${o.uid})">Выдать</button>
                     </div>`;
             });
         }
 
-        // Рендер Админки
-        if(data.admin) {
-            document.getElementById('admin-panel').style.display = 'block';
-            const admList = document.getElementById('admin-orders');
-            if(data.admin_orders.length === 0) admList.innerHTML = '<div style="text-align:center; color:gray; font-size:12px;">Заказов нет</div>';
-            else {
-                data.admin_orders.forEach(o => {
-                    admList.innerHTML += `
-                        <div class="item-card" style="background:black; border-color:#333;">
-                            <div>
-                                <div style="font-size:13px; font-weight:bold;">${o.item}</div>
-                                <div style="font-size:11px; color:gray;">${o.user} (ID: ${o.uid})</div>
-                            </div>
-                            <button onclick="adminDone(${o.id}, ${o.uid})" style="background:var(--green); border:none; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:bold;">Выдать</button>
-                        </div>`;
-                });
-            }
-        }
-
-        // --- ФУНКЦИИ ---
-
+        // --- ЛОГИКА ---
         function openCat(id, title) {
             document.getElementById('home').classList.remove('active');
             document.getElementById(id).classList.add('active');
-            
-            const nav = document.getElementById('navHeader');
-            nav.classList.add('active');
+            document.getElementById('navHeader').classList.add('active');
             document.getElementById('categoryTitle').innerText = title;
         }
 
@@ -312,50 +205,30 @@
         }
 
         function switchTab(id, btn) {
-            goHome(); // Сброс категорий
+            goHome();
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // Если переключили на вкладку, скрываем навигацию "назад"
             document.getElementById('navHeader').classList.remove('active');
         }
 
-        function buy(code, price, name) {
-            if(data.bal < price) {
-                tg.showAlert(`❌ Не хватает средств! Баланс: ${data.bal} ₽`);
-                return;
-            }
-            tg.showConfirm(`Купить "${name}" за ${price} ₽?`, (ok) => {
-                if(ok) {
-                    // ВАЖНО: Это закрывает WebApp и отправляет данные боту
-                    tg.sendData(JSON.stringify({ action: 'buy', item: name, price: price }));
-                }
+        function buy(code, price) {
+            if(data.bal < price) return tg.showAlert(`Не хватает денег! Баланс: ${data.bal}`);
+            tg.showConfirm(`Купить за ${price} ₽?`, ok => {
+                if(ok) tg.sendData(JSON.stringify({ action: 'buy', item: code, price: price })); // code -> item name
             });
         }
 
         function adminGiveMoney() {
             const id = document.getElementById('adm-id').value;
             const sum = document.getElementById('adm-sum').value;
-            if(!id || !sum) return;
-            
-            tg.showConfirm(`Выдать ${sum}₽ игроку ${id}?`, (ok) => {
-                if(ok) tg.sendData(JSON.stringify({ action: 'give_money', target: id, amount: sum }));
-            });
+            if(id && sum) tg.sendData(JSON.stringify({ action: 'give_money', target: id, amount: sum }));
         }
 
         function adminDone(oid, uid) {
-            tg.showConfirm('Подтвердить выдачу?', (ok) => {
-                if(ok) tg.sendData(JSON.stringify({ action: 'order_done', order_id: oid, target: uid }));
-            });
+            tg.sendData(JSON.stringify({ action: 'order_done', order_id: oid, target: uid }));
         }
-
-        function contactSupport() {
-            tg.openTelegramLink(`https://t.me/${data.manager}`);
-        }
-
     </script>
 </body>
 </html>
