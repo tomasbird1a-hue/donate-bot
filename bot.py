@@ -16,7 +16,7 @@ DATABASE_URL = os.getenv("DATABASE_URL") # Сюда Render сам подстав
 
 # !!! ЗАМЕНИ ЭТИ ДВЕ СТРОЧКИ НА СВОИ !!!
 ADMIN_ID = 1831662688  
-GITHUB_URL = "https://tomasbird1a-hue.github.io/donate-bot/" 
+GITHUB_URL = "https://tomasbird1a-hue.github.io/donate-bot/index.html" 
 MANAGER_USERNAME = "tombirdi" 
 # =============================================
 
