@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MagicRP Донат</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .balance {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .discount-banner {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin: 20px;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+        }
+
+        .discount-banner h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .discount-banner p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content {
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .price-current {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4ade80;
+        }
+
+        .price-old {
+            font-size: 14px;
+            text-decoration: line-through;
+            opacity: 0.6;
+            color: #ef4444;
+        }
+
+        .rank-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .rank-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .rank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .rank-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .rank-benefits {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .task-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .task-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .task-icon.telegram {
+            background: linear-gradient(135deg, #0088cc 0%, #00a0e9 100%);
+        }
+
+        .task-icon.discord {
+            background: linear-gradient(135deg, #5865F2 0%, #7289da 100%);
+        }
+
+        .task-icon.vk {
+            background: linear-gradient(135deg, #0077FF 0%, #4C9AFF 100%);
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .task-reward {
+            font-size: 14px;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .task-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .task-button.completed {
+            background: #4ade80;
+            cursor: default;
+        }
+
+        .buy-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .buy-button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-text {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">M</div>
+            <span>MagicRP</span>
+        </div>
+        <div class="balance" id="balance">0 ₽</div>
+    </div>
+
+    <div class="discount-banner">
+        <h2>🔥 Единоразовая акция!</h2>
+        <p>Сейчас на весь ассортимент действуют скидки 70%!</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="categories">🛒 Категории</button>
+        <button class="tab" data-tab="ranks">⭐ Ранги</button>
+        <button class="tab" data-tab="tasks">🎁 Задания</button>
+        <button class="tab" data-tab="profile">👤 Профиль</button>
+    </div>
+
+    <div class="content">
+        <!-- Категории -->
+        <div id="categories" class="tab-content fade-in">
+            <div class="section-title">🛒 Категории товаров</div>
+            <div class="info-text">
+                Выбери категорию и получи бонусы и скидки на донат!
+            </div>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-title">Игровые предметы</div>
+                    <div class="card-price">
+                        <span class="price-current">Скоро</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💎</div>
+                    <div class="card-title">Валюта</div>
+                    <div class="card-price">
+                        <span class="price-current">Скоро</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎁</div>
+                    <div class="card-title">Наборы</div>
+                    <div class="card-price">
+                        <span class="price-current">Скоро</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-title">Бустеры</div>
+                    <div class="card-price">
+                        <span class="price-current">Скоро</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ранги -->
+        <div id="ranks" class="tab-content hidden">
+            <div class="section-title">⭐ Наборные ранги</div>
+            <div class="info-text">
+                ✓ Покупной ранг не имеет каких-либо обязанностей наборных админов<br>
+                ✓ Любой ранг можно будет докупить без переплат!
+            </div>
+            <div id="ranks-list"></div>
+        </div>
+
+        <!-- Задания -->
+        <div id="tasks" class="tab-content hidden">
+            <div class="section-title">🎁 Бонусные задания</div>
+            <div class="info-text">
+                Выполняй задания и получай бонусы на баланс!
+            </div>
+            <div id="tasks-list"></div>
+        </div>
+
+        <!-- Профиль -->
+        <div id="profile" class="tab-content hidden">
+            <div class="section-title">👤 Ваш профиль</div>
+            <div id="profile-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Получаем данные пользователя
+        const userId = tg.initDataUnsafe?.user?.id || '123456789';
+        const username = tg.initDataUnsafe?.user?.username || 'Demo User';
+
+        // Локальное хранилище (в продакшене - API на сервере)
+        let userData = JSON.parse(localStorage.getItem(`user_${userId}`)) || {
+            balance: 3000,
+            completedTasks: [],
+            purchases: []
+        };
+
+        const ranks = {
+            "1": { name: "Root", price: 6900, oldPrice: 23000, icon: "👑", benefits: "Все возможности сервера" },
+            "2": { name: "Sudo Root", price: 4800, oldPrice: 16000, icon: "🔱", benefits: "Расширенные права" },
+            "3": { name: "Главный куратор", price: 4200, oldPrice: 14000, icon: "⚔️", benefits: "Управление командой" },
+            "4": { name: "Старший куратор", price: 3500, oldPrice: 12000, icon: "🛡️", benefits: "Кураторские права" },
+            "5": { name: "Главный админ", price: 2900, oldPrice: 10000, icon: "⚡", benefits: "Админ-панель" },
+            "6": { name: "Супер Админ", price: 2200, oldPrice: 8000, icon: "💫", benefits: "Стандартные права" }
+        };
+
+        const tasks = {
+            "1": { name: "Подписаться на Telegram", reward: 1500, icon: "telegram", url: "https://t.me/your_channel" },
+            "2": { name: "Привязать Discord", reward: 500, icon: "discord", url: "https://discord.gg/your" },
+            "3": { name: "Подписаться в ВКонтакте", reward: 500, icon: "vk", url: "https://vk.com/your_group" }
+        };
+
+        // Обновление баланса
+        function updateBalance() {
+            document.getElementById('balance').textContent = `${userData.balance} ₽`;
+        }
+
+        // Переключение табов
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                const targetContent = document.getElementById(targetTab);
+                targetContent.classList.remove('hidden');
+                targetContent.classList.add('fade-in');
+                
+                if (targetTab === 'ranks') renderRanks();
+                if (targetTab === 'tasks') renderTasks();
+                if (targetTab === 'profile') renderProfile();
+            });
+        });
+
+        // Рендер рангов
+        function renderRanks() {
+            const container = document.getElementById('ranks-list');
+            container.innerHTML = '';
+            
+            Object.entries(ranks).forEach(([id, rank]) => {
+                const card = document.createElement('div');
+                card.className = 'rank-card';
+                card.innerHTML = `
+                    <div class="rank-header">
+                        <div class="rank-name">${rank.icon} ${rank.name}</div>
+                        <div class="card-price">
+                            <span class="price-current">${rank.price} ₽</span>
+                            <span class="price-old">${rank.oldPrice} ₽</span>
+                        </div>
+                    </div>
+                    <div class="rank-benefits">${rank.benefits}</div>
+                    <button class="buy-button" onclick="buyRank('${id}')">Купить за ${rank.price} ₽</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Рендер заданий
+        function renderTasks() {
+            const container = document.getElementById('tasks-list');
+            container.innerHTML = '';
+            
+            Object.entries(tasks).forEach(([id, task]) => {
+                const completed = userData.completedTasks.includes(id);
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.innerHTML = `
+                    <div class="task-icon ${task.icon}">
+                        ${task.icon === 'telegram' ? '✈️' : task.icon === 'discord' ? '💬' : '👥'}
+                    </div>
+                    <div class="task-info">
+                        <div class="task-name">${task.name}</div>
+                        <div class="task-reward">+${task.reward} ₽</div>
+                    </div>
+                    <button class="task-button ${completed ? 'completed' : ''}" 
+                            onclick="${completed ? '' : `completeTask('${id}', '${task.url}')`}">
+                        ${completed ? '✓ Выполнено' : 'Выполнить'}
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Рендер профиля
+        function renderProfile() {
+            const container = document.getElementById('profile-content');
+            const completedCount = userData.completedTasks.length;
+            const totalTasks = Object.keys(tasks).length;
+            
+            let purchasesHtml = '';
+            if (userData.purchases.length > 0) {
+                purchasesHtml = '<div class="info-text"><strong>Последние покупки:</strong><br>';
+                userData.purchases.slice(-5).forEach(p => {
+                    purchasesHtml += `• ${p.item} - ${p.price} ₽<br>`;
+                });
+                purchasesHtml += '</div>';
+            }
+            
+            container.innerHTML = `
+                <div class="info-text">
+                    <strong>Пользователь:</strong> ${username}<br>
+                    <strong>💰 Баланс:</strong> ${userData.balance} ₽<br>
+                    <strong>✅ Выполнено заданий:</strong> ${completedCount}/${totalTasks}<br>
+                    <strong>🛒 Покупок:</strong> ${userData.purchases.length}
+                </div>
+                ${purchasesHtml}
+                <button class="buy-button" onclick="addBalance()">💰 Пополнить баланс</button>
+            `;
+        }
+
+        // Покупка ранга
+        function buyRank(rankId) {
+            const rank = ranks[rankId];
+            
+            if (userData.balance < rank.price) {
+                tg.showAlert(`❌ Недостаточно средств! Нужно ${rank.price} ₽, у вас ${userData.balance} ₽`);
+                return;
+            }
+            
+            if (confirm(`Купить ${rank.name} за ${rank.price} ₽?`)) {
+                userData.balance -= rank.price;
+                userData.purchases.push({
+                    item: rank.name,
+                    price: rank.price,
+                    date: new Date().toISOString()
+                });
+                
+                saveUserData();
+                updateBalance();
+                
+                tg.showAlert('✅ Покупка успешна! Ожидайте выдачи от администратора');
+            }
+        }
+
+        // Выполнение задания
+        function completeTask(taskId, url) {
+            window.open(url, '_blank');
+            
+            setTimeout(() => {
+                if (confirm('Вы выполнили задание?')) {
+                    const task = tasks[taskId];
+                    userData.balance += task.reward;
+                    userData.completedTasks.push(taskId);
+                    
+                    saveUserData();
+                    updateBalance();
+                    renderTasks();
+                    
+                    tg.showAlert(`✅ Получено ${task.reward} ₽!`);
+                }
+            }, 1000);
+        }
+
+        // Пополнение баланса
+        function addBalance() {
+            tg.showPopup({
+                title: '💰 Пополнение баланса',
+                message: 'Для пополнения отправьте скриншот перевода боту',
+                buttons: [
+                    { id: 'ok', type: 'default', text: 'Понятно' }
+                ]
+            });
+        }
+
+        // Сохранение данных
+        function saveUserData() {
+            localStorage.setItem(`user_${userId}`, JSON.stringify(userData));
+        }
+
+        // Инициализация
+        updateBalance();
+        renderRanks();
+    </script>
+</body>
+</html>
