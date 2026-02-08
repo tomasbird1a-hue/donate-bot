@@ -3,27 +3,31 @@ import logging
 import json
 import urllib.parse
 import os
-import aiosqlite
+import asyncpg
 from aiohttp import web
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
 from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton, MenuButtonWebApp
 
 # ================= НАСТРОЙКИ =================
-# Вставь сюда токен, если не настроил ENV на Render
-BOT_TOKEN = os.getenv("BOT_TOKEN", "7884895293:AAGWVIopZzALxl5zT6rFX1-WaDlwxyOXa2U")
-ADMIN_ID = 1831662688  # <--- ОБЯЗАТЕЛЬНО ЗАМЕНИ НА СВОЙ ЦИФРОВОЙ ID
-GITHUB_URL = "https://tomasbird1a-hue.github.io/donate-bot/"
-MANAGER_USERNAME = "admin_username" 
+# Берем токен и URL базы из переменных среды (настроим на Render)
+BOT_TOKEN = os.getenv("BOT_TOKEN") 
+DATABASE_URL = os.getenv("DATABASE_URL") # Сюда Render сам подставит ссылку
+
+# !!! ЗАМЕНИ ЭТИ ДВЕ СТРОЧКИ НА СВОИ !!!
+ADMIN_ID = 1831662688  
+GITHUB_URL = "https://твое-имя.github.io/donate-bot/" 
+MANAGER_USERNAME = "tombirdi" 
 # =============================================
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
+pool = None # Пул соединений с БД
 
-# --- ФЕЙКОВЫЙ СЕРВЕР (ЧТОБЫ RENDER НЕ УСНУЛ) ---
+# --- ВЕБ-СЕРВЕР (Health Check) ---
 async def health_check(request):
-    return web.Response(text="Bot is alive!")
+    return web.Response(text="Bot is alive & DB connected!")
 
 async def start_web_server():
     app = web.Application()
@@ -33,66 +37,70 @@ async def start_web_server():
     port = int(os.environ.get("PORT", 8080))
     site = web.TCPSite(runner, '0.0.0.0', port)
     await site.start()
-    print(f"Web server started on port {port}")
 
-# --- ИНИЦИАЛИЗАЦИЯ БД ---
+# --- БАЗА ДАННЫХ (POSTGRESQL) ---
 async def init_db():
-    async with aiosqlite.connect('store.db') as db:
-        await db.execute('''CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
-            username TEXT,
-            balance INTEGER DEFAULT 0
-        )''')
-        await db.execute('''CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            username TEXT,
-            item_name TEXT,
-            price INTEGER,
-            status TEXT DEFAULT 'wait',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )''')
-        await db.commit()
+    global pool
+    # Подключаемся к внешней базе
+    pool = await asyncpg.create_pool(DATABASE_URL)
+    
+    async with pool.acquire() as conn:
+        # Создаем таблицы (Postgres синтаксис)
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id BIGINT PRIMARY KEY,
+                username TEXT,
+                balance INTEGER DEFAULT 0
+            )
+        ''')
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS orders (
+                id SERIAL PRIMARY KEY,
+                user_id BIGINT,
+                username TEXT,
+                item_name TEXT,
+                price INTEGER,
+                status TEXT DEFAULT 'wait',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        # Создаем админа, если его нет (ON CONFLICT DO NOTHING)
+        await conn.execute('''
+            INSERT INTO users (user_id, username, balance) 
+            VALUES ($1, 'Admin', 999999) 
+            ON CONFLICT (user_id) DO NOTHING
+        ''', ADMIN_ID)
+        logging.info("База данных успешно подключена!")
 
-# --- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ: ПРОВЕРКА ЮЗЕРА ---
-# Если база стерлась, эта функция вернет юзера обратно в базу
-async def ensure_user_exists(user_id, username):
-    async with aiosqlite.connect('store.db') as db:
-        await db.execute('INSERT OR IGNORE INTO users (user_id, username, balance) VALUES (?, ?, 0)', (user_id, username))
-        await db.commit()
-
-# --- ОБРАБОТЧИК /START ---
+# --- ЛОГИКА БОТА ---
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     user_id = message.from_user.id
     username = message.from_user.username or "Guest"
 
-    # 1. Гарантируем, что юзер есть в БД
-    await ensure_user_exists(user_id, username)
-
-    # 2. Получаем баланс
-    async with aiosqlite.connect('store.db') as db:
-        async with db.execute('SELECT balance FROM users WHERE user_id = ?', (user_id,)) as cursor:
-            row = await cursor.fetchone()
-            balance = row[0] if row else 0
+    async with pool.acquire() as conn:
+        # 1. Регистрируем или обновляем юзера
+        await conn.execute('''
+            INSERT INTO users (user_id, username, balance) VALUES ($1, $2, 0)
+            ON CONFLICT (user_id) DO UPDATE SET username = $2
+        ''', user_id, username)
         
-        # 3. Загружаем заказы юзера
-        my_orders = []
-        async with db.execute('SELECT item_name, price, status FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT 10', (user_id,)) as cursor:
-            async for r in cursor:
-                my_orders.append({'item': r[0], 'price': r[1], 'status': r[2]})
+        # 2. Получаем баланс
+        balance = await conn.fetchval('SELECT balance FROM users WHERE user_id = $1', user_id)
         
-        # 4. (Если Админ) Загружаем чужие заказы
+        # 3. Мои заказы
+        rows = await conn.fetch('SELECT item_name, price, status FROM orders WHERE user_id = $1 ORDER BY id DESC LIMIT 10', user_id)
+        my_orders = [{'item': r['item_name'], 'price': r['price'], 'status': r['status']} for r in rows]
+        
+        # 4. Админские заказы
         admin_orders = []
         if user_id == ADMIN_ID:
-            async with db.execute('SELECT id, username, item_name, user_id, price FROM orders WHERE status = "wait"') as cursor:
-                async for r in cursor:
-                    admin_orders.append({'id': r[0], 'user': r[1], 'item': r[2], 'uid': r[3], 'price': r[4]})
+            rows_adm = await conn.fetch("SELECT id, username, item_name, user_id, price FROM orders WHERE status = 'wait'")
+            admin_orders = [{'id': r['id'], 'user': r['username'], 'item': r['item_name'], 'uid': r['user_id'], 'price': r['price']} for r in rows_adm]
 
-    # 5. Формируем ссылку
     data_payload = {
         'bal': balance,
-        'admin': (user_id == ADMIN_ID), # Проверка строго по ID в коде
+        'admin': (user_id == ADMIN_ID),
         'manager': MANAGER_USERNAME,
         'orders': my_orders,
         'admin_orders': admin_orders
@@ -103,11 +111,8 @@ async def cmd_start(message: types.Message):
 
     kb = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="💎 Открыть Магазин", web_app=WebAppInfo(url=link))]])
     await bot.set_chat_menu_button(chat_id=message.chat.id, menu_button=MenuButtonWebApp(text="Магазин", web_app=WebAppInfo(url=link)))
-    
     await message.answer(f"Привет! Баланс: {balance} ₽", reply_markup=kb)
 
-
-# --- ОБРАБОТКА WEB APP ---
 @dp.message(F.web_app_data)
 async def web_app_handler(message: types.Message):
     try:
@@ -116,75 +121,65 @@ async def web_app_handler(message: types.Message):
         user_id = message.from_user.id
         username = message.from_user.username or "Guest"
 
-        # СТРАХОВКА: Если база стерлась, создаем юзера на лету
-        await ensure_user_exists(user_id, username)
-
-        async with aiosqlite.connect('store.db') as db:
+        async with pool.acquire() as conn:
             
-            # === ПОКУПКА ===
+            # --- ПОКУПКА ---
             if action == 'buy':
                 price = int(data['price'])
                 item = data['item']
                 
-                async with db.execute('SELECT balance FROM users WHERE user_id = ?', (user_id,)) as cursor:
-                    row = await cursor.fetchone()
-                    bal = row[0]
-                
-                if bal >= price:
-                    new_bal = bal - price
-                    await db.execute('UPDATE users SET balance = ? WHERE user_id = ?', (new_bal, user_id))
-                    await db.execute('INSERT INTO orders (user_id, username, item_name, price) VALUES (?, ?, ?, ?)', 
-                                     (user_id, username, item, price))
-                    await db.commit()
+                # Транзакция (чтобы деньги не списались, если ошибка)
+                async with conn.transaction():
+                    balance = await conn.fetchval('SELECT balance FROM users WHERE user_id = $1', user_id)
                     
-                    await message.answer(f"✅ Успешно куплено: <b>{item}</b>\n💰 Остаток: {new_bal} ₽", parse_mode="HTML")
-                    
-                    if user_id != ADMIN_ID:
-                        await bot.send_message(ADMIN_ID, f"🔔 <b>Новый заказ!</b>\nОт: @{username}\nТовар: {item}", parse_mode="HTML")
-                else:
-                    await message.answer("❌ Ошибка: Недостаточно средств на счете бота.")
+                    if balance >= price:
+                        new_bal = balance - price
+                        await conn.execute('UPDATE users SET balance = $1 WHERE user_id = $2', new_bal, user_id)
+                        await conn.execute('INSERT INTO orders (user_id, username, item_name, price) VALUES ($1, $2, $3, $4)', 
+                                         user_id, username, item, price)
+                        
+                        await message.answer(f"✅ Успешно куплено: <b>{item}</b>\n💰 Остаток: {new_bal} ₽", parse_mode="HTML")
+                        if user_id != ADMIN_ID:
+                            try:
+                                await bot.send_message(ADMIN_ID, f"🔔 Новый заказ от @{username}: {item}")
+                            except: pass
+                    else:
+                        await message.answer("❌ Недостаточно средств.")
 
-            # === АДМИН: ВЫДАТЬ ДЕНЬГИ ===
+            # --- АДМИН: ВЫДАЧА ДЕНЕГ ---
             elif action == 'give_money':
                 if user_id == ADMIN_ID:
-                    target_id = int(data['target'])
+                    target = int(data['target'])
                     amount = int(data['amount'])
                     
-                    # Страховка для получателя (если его нет в базе)
-                    await ensure_user_exists(target_id, "Unknown")
+                    # Проверяем, есть ли такой юзер в базе
+                    exists = await conn.fetchval('SELECT 1 FROM users WHERE user_id = $1', target)
+                    if not exists:
+                        # Если нет, создаем пустышку, чтобы начислить
+                        await conn.execute('INSERT INTO users (user_id, username, balance) VALUES ($1, $2, 0)', target, 'Unknown')
                     
-                    await db.execute('UPDATE users SET balance = balance + ? WHERE user_id = ?', (amount, target_id))
-                    await db.commit()
-                    
-                    await message.answer(f"✅ Пользователю {target_id} начислено {amount} ₽")
+                    await conn.execute('UPDATE users SET balance = balance + $1 WHERE user_id = $2', amount, target)
+                    await message.answer(f"✅ Выдано {amount}₽ игроку {target}")
                     try:
-                        await bot.send_message(target_id, f"💰 Ваш баланс пополнен на {amount} ₽")
-                    except: 
-                        await message.answer("⚠️ Пользователь получил деньги, но у него закрыта личка.")
-                else:
-                    await message.answer("❌ У вас нет прав админа.")
+                        await bot.send_message(target, f"💰 Вам начислено {amount} ₽")
+                    except: pass
 
-            # === АДМИН: ВЫДАТЬ ЗАКАЗ ===
+            # --- АДМИН: ВЫДАЧА ЗАКАЗА ---
             elif action == 'order_done':
                 if user_id == ADMIN_ID:
-                    order_id = int(data['order_id'])
-                    target_id = int(data['target'])
-                    
-                    await db.execute('UPDATE orders SET status = "done" WHERE id = ?', (order_id,))
-                    await db.commit()
-                    
-                    await message.answer(f"✅ Заказ #{order_id} закрыт.")
+                    oid = int(data['order_id'])
+                    target = int(data['target'])
+                    await conn.execute("UPDATE orders SET status = 'done' WHERE id = $1", oid)
+                    await message.answer(f"✅ Заказ #{oid} закрыт.")
                     try:
-                        await bot.send_message(target_id, "✅ Ваш заказ был выдан! Спасибо за покупку.")
+                        await bot.send_message(target, "✅ Ваш заказ выдан!")
                     except: pass
 
     except Exception as e:
-        logging.error(f"CRITICAL ERROR: {e}")
-        await message.answer("Произошла ошибка обработки. Попробуйте нажать /start")
+        logging.error(f"Error: {e}")
 
 async def main():
     await init_db()
-    # Запускаем всё вместе
     await asyncio.gather(start_web_server(), dp.start_polling(bot))
 
 if __name__ == "__main__":
