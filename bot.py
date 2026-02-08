@@ -12,9 +12,9 @@ from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 # ================= НАСТРОЙКИ =================
 # Токен берем из переменных среды (безопасность) или вставляем жестко для теста
 BOT_TOKEN = os.getenv("BOT_TOKEN", "ТВОЙ_ТОКЕН_ВСТАВЬ_СЮДА_ЕСЛИ_НЕ_РАБОТАЕТ_ENV")
-ADMIN_ID = 123456789 # Твой ID цифрами
+ADMIN_ID = 1831662688 # Твой ID цифрами
 GITHUB_URL = "https://tomasbird1a-hue.github.io/donate-bot/" # Твоя ссылка на GitHub
-MANAGER_USERNAME = "admin_username" 
+MANAGER_USERNAME = "tombirdi" 
 # =============================================
 
 logging.basicConfig(level=logging.INFO)
@@ -167,4 +167,5 @@ async def main():
     )
 
 if __name__ == "__main__":
+
     asyncio.run(main())
