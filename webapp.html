@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>MagicRP | Спец. Донат</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+            padding-bottom: 80px;
+        }
+
+        /* Приветственный баннер */
+        .welcome-banner {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .welcome-text {
+            position: relative;
+            z-index: 1;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Скидочный баннер */
+        .discount-banner {
+            background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+            margin: 0;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(236, 72, 153, 0.3);
+        }
+
+        .discount-banner h2 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .discount-value {
+            font-size: 48px;
+            font-weight: 900;
+            margin: 10px 0;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            letter-spacing: -2px;
+        }
+
+        .discount-subtitle {
+            font-size: 14px;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Табы */
+        .tabs-wrapper {
+            background: rgba(17, 17, 27, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Контент */
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .info-card {
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 3px solid #8B5CF6;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Карточки рангов */
+        .rank-card {
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.8) 0%, rgba(20, 20, 35, 0.8) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .rank-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8B5CF6 0%, #EC4899 100%);
+        }
+
+        .rank-card:active {
+            transform: scale(0.98);
+        }
+
+        .rank-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .rank-name {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .rank-price-box {
+            text-align: right;
+        }
+
+        .rank-price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #10B981;
+            display: block;
+        }
+
+        .rank-old-price {
+            font-size: 14px;
+            text-decoration: line-through;
+            color: #EF4444;
+            opacity: 0.7;
+        }
+
+        .rank-description {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .buy-button {
+            width: 100%;
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .buy-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Админ панель */
+        .admin-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #8B5CF6;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .admin-button {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .admin-button.danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Модалка */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .close-btn:hover {
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Приветственный баннер -->
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                На весь ассортимент в ЗИОм канале ТБІ можешь<br>
+                получить бонусы и закупиться<br>
+                спец. донатом по вкусным<br>
+                скидкам! Нажимай "открыть"<br>
+                снизу и вперед за халявой!
+            </div>
+        </div>
+
+        <!-- Скидочный баннер -->
+        <div class="discount-banner">
+            <h2>• ЕДИНОРАЗОВАЯ АКЦИЯ •</h2>
+            <div class="discount-value">70%</div>
+            <div class="discount-subtitle">СКИДКА</div>
+            <div style="margin-top: 10px; font-size: 13px;">НА ВЕСЬ СПЕЦ ДОНАТ</div>
+        </div>
+
+        <!-- Табы -->
+        <div class="tabs-wrapper">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('ranks')">⭐ Наборные ранги</button>
+                <button class="tab" onclick="switchTab('profile')" id="profileTab">👤 Ваш профиль</button>
+            </div>
+        </div>
+
+        <!-- Контент -->
+        <div class="content">
+            <!-- Ранги -->
+            <div id="ranks" class="tab-content active">
+                <div class="section-title">Наборные ранги</div>
+                <div class="info-card">
+                    ✓ Покупной ранг не имеет каких-либо обязанностей наборных админов (не нужно сдавать отчеты или отыгрывать обязательный онлайн), покупатель просто пользуется благами привилегии без ее обязанностей. * Любой ранг можно будет докупить без переплат!
+                </div>
+                <div id="ranks-list"></div>
+            </div>
+
+            <!-- Профиль -->
+            <div id="profile" class="tab-content">
+                <div class="section-title">Ваш профиль</div>
+                <div id="profile-info"></div>
+                
+                <!-- Админ-панель (только для админов) -->
+                <div id="admin-panel" class="hidden">
+                    <div class="admin-section">
+                        <div class="admin-header">
+                            <div class="section-title" style="margin: 0;">Панель администратора</div>
+                            <div class="admin-badge">ADMIN</div>
+                        </div>
+                        
+                        <div class="admin-stats">
+                            <div class="stat-card">
+                                <div class="stat-value" id="admin-ranks-count">0</div>
+                                <div class="stat-label">Рангов</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="admin-users-count">0</div>
+                                <div class="stat-label">Пользователей</div>
+                            </div>
+                        </div>
+
+                        <button class="admin-button" onclick="openAddRankModal()">
+                            ➕ Добавить ранг
+                        </button>
+                        <button class="admin-button" onclick="showManageRanks()">
+                            ✏️ Управление рангами
+                        </button>
+                        <button class="admin-button danger" onclick="clearAllData()">
+                            🗑️ Очистить все данные
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка добавления ранга -->
+    <div class="modal" id="addRankModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Добавить ранг</div>
+                <button class="close-btn" onclick="closeModal('addRankModal')">&times;</button>
+            </div>
+            <form id="addRankForm" onsubmit="addRank(event)">
+                <div class="form-group">
+                    <label class="form-label">Название ранга</label>
+                    <input type="text" class="form-input" id="rankName" required placeholder="Например: Root">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Цена (₽)</label>
+                    <input type="number" class="form-input" id="rankPrice" required placeholder="6900">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Старая цена (₽)</label>
+                    <input type="number" class="form-input" id="rankOldPrice" required placeholder="23000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание привилегий</label>
+                    <textarea class="form-textarea" id="rankDescription" required placeholder="Все возможности сервера"></textarea>
+                </div>
+                <button type="submit" class="buy-button" style="margin-top: 10px;">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модалка управления рангами -->
+    <div class="modal" id="manageRanksModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Управление рангами</div>
+                <button class="close-btn" onclick="closeModal('manageRanksModal')">&times;</button>
+            </div>
+            <div id="manage-ranks-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Получаем ID пользователя
+        const userId = tg.initDataUnsafe?.user?.id || 0;
+        const username = tg.initDataUnsafe?.user?.username || 'Demo User';
+
+        // ID администратора (ВАЖНО: замени на свой Telegram ID!)
+        const ADMIN_ID = 123456789;
+
+        // Проверка админа
+        const isAdmin = userId === ADMIN_ID;
+
+        // База данных (LocalStorage)
+        let ranks = JSON.parse(localStorage.getItem('ranks')) || {};
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+
+        // Инициализация дефолтных рангов
+        if (Object.keys(ranks).length === 0) {
+            ranks = {
+                "1": { name: "Root", price: 6900, oldPrice: 23000, description: "Все возможности сервера" },
+                "2": { name: "Sudo Root", price: 4800, oldPrice: 16000, description: "Расширенные права администратора" },
+                "3": { name: "Главный куратор", price: 4200, oldPrice: 14000, description: "Управление командой кураторов" },
+                "4": { name: "Старший куратор", price: 3500, oldPrice: 12000, description: "Кураторские привилегии" },
+                "5": { name: "Главный админ", price: 2900, oldPrice: 10000, description: "Полный доступ к админ-панели" },
+                "6": { name: "Супер Админ", price: 2200, oldPrice: 8000, description: "Стандартные права администратора" }
+            };
+            saveData();
+        }
+
+        // Инициализация пользователя
+        if (!users[userId]) {
+            users[userId] = {
+                username: username,
+                purchases: [],
+                balance: 0
+            };
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('ranks', JSON.stringify(ranks));
+            localStorage.setItem('users', JSON.stringify(users));
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'profile') {
+                renderProfile();
+            }
+        }
+
+        function renderRanks() {
+            const container = document.getElementById('ranks-list');
+            container.innerHTML = '';
+            
+            const sortedRanks = Object.entries(ranks).sort((a, b) => b[1].price - a[1].price);
+            
+            sortedRanks.forEach(([id, rank]) => {
+                const card = document.createElement('div');
+                card.className = 'rank-card';
+                card.innerHTML = `
+                    <div class="rank-header">
+                        <div class="rank-name">${rank.name}</div>
+                        <div class="rank-price-box">
+                            <span class="rank-price">${rank.price} ₽</span>
+                            <span class="rank-old-price">${rank.oldPrice} ₽</span>
+                        </div>
+                    </div>
+                    <div class="rank-description">${rank.description}</div>
+                    <button class="buy-button" onclick="buyRank('${id}')">Купить за ${rank.price} ₽</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderProfile() {
+            const user = users[userId];
+            const container = document.getElementById('profile-info');
+            
+            let html = `
+                <div class="info-card">
+                    <strong>👤 Пользователь:</strong> ${user.username}<br>
+                    <strong>💰 Баланс:</strong> ${user.balance} ₽<br>
+                    <strong>🛒 Покупок:</strong> ${user.purchases.length}
+                </div>
+            `;
+            
+            if (user.purchases.length > 0) {
+                html += '<div class="info-card"><strong>Последние покупки:</strong><br>';
+                user.purchases.slice(-5).forEach(p => {
+                    html += `• ${p.item} - ${p.price} ₽<br>`;
+                });
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+            
+            if (isAdmin) {
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-ranks-count').textContent = Object.keys(ranks).length;
+                document.getElementById('admin-users-count').textContent = Object.keys(users).length;
+                document.getElementById('profileTab').innerHTML = '⚙️ Админ-панель';
+            }
+        }
+
+        function buyRank(rankId) {
+            const rank = ranks[rankId];
+            
+            if (confirm(`Вы уверены что хотите купить ${rank.name} за ${rank.price} ₽?`)) {
+                users[userId].purchases.push({
+                    item: rank.name,
+                    price: rank.price,
+                    date: new Date().toISOString()
+                });
+                saveData();
+                
+                tg.showAlert('✅ Заказ создан! Ожидайте выдачи от администратора');
+                renderProfile();
+            }
+        }
+
+        function openAddRankModal() {
+            document.getElementById('addRankModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function addRank(e) {
+            e.preventDefault();
+            
+            const id = Date.now().toString();
+            ranks[id] = {
+                name: document.getElementById('rankName').value,
+                price: parseInt(document.getElementById('rankPrice').value),
+                oldPrice: parseInt(document.getElementById('rankOldPrice').value),
+                description: document.getElementById('rankDescription').value
+            };
+            
+            saveData();
+            renderRanks();
+            renderProfile();
+            closeModal('addRankModal');
+            e.target.reset();
+            
+            tg.showAlert('✅ Ранг добавлен!');
+        }
+
+        function showManageRanks() {
+            const container = document.getElementById('manage-ranks-list');
+            container.innerHTML = '';
+            
+            Object.entries(ranks).forEach(([id, rank]) => {
+                const card = document.createElement('div');
+                card.className = 'rank-card';
+                card.innerHTML = `
+                    <div class="rank-header">
+                        <div class="rank-name">${rank.name}</div>
+                        <div class="rank-price">${rank.price} ₽</div>
+                    </div>
+                    <div class="rank-description">${rank.description}</div>
+                    <button class="admin-button danger" onclick="deleteRank('${id}')">🗑️ Удалить</button>
+                `;
+                container.appendChild(card);
+            });
+            
+            document.getElementById('manageRanksModal').classList.add('active');
+        }
+
+        function deleteRank(id) {
+            if (confirm('Удалить этот ранг?')) {
+                delete ranks[id];
+                saveData();
+                renderRanks();
+                showManageRanks();
+                renderProfile();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ ВНИМАНИЕ! Это удалит ВСЕ ранги и данные пользователей. Продолжить?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        renderRanks();
+    </script>
+</body>
+</html>
